@@ -1,0 +1,37 @@
+# 🗂️ Node.js dependencies
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# ⚙️ Configuración del entorno
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# 🛠️ Logs y caché
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+logs/
+*.cache
+
+# 🏗️ Archivos de compilación
+dist/
+build/
+.tmp/
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# ⚡ PM2 logs
+pm2.log
+pm2.pid
+
+# 🚀 Desplegables (si usas Docker o Firebase)
+docker-compose.override.yml
+firebase-debug.log

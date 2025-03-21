@@ -1,0 +1,56 @@
+- REACT-CALENDAR
+- DATE-FNS
+
+- Crear el Backend con los modelos de cita y las rutas
+- Crear autenticación de usuario (ADMIN)
+- Crear las rutas del admin
+- Cita creada en el front al hacer click, cuando abre el dia el back verifica si hay
+cita disponible o no en este dia y devuelve solo los horarios disponibles.
+
+
+----- TAREAS -----
+
+Clicar no dia:
+Buscar con .find por dia, se não tiver cita com aquele dia, mostrar os horarios e permitir agendar.
+Se tiver cita, mostrar as citas e os horarios daquele dia e deixar indisponível para clicar.
+
+CRUD de horarios:
+Criar modelo e o CRUD de horario para que o admin possa escolher os horarios de trabalho
+(criar, ver, atualizar, eliminar).
+Será uma lista de horarios que o admin pode colocar. Estes horários estarão disponíveis no Frontend
+e serão comparados com os horarios das citas de cada dia (deixar os horarios já reservados indisponíveis
+para reservar outra vez)
+
+*******
+Creando los horarios se creará una lista de horarios [] que se debe comparar con los horarios de las citas.
+si en la lista de citas encontradas en el determinado dia [] coinciden con algun horario de la lista de horarios
+[] este debe quedarse indisponíble.
+*******
+
+COMEÇAR O FRONTEND:
+Usar un calendario que envie el dia seleccionado para el backend verificar si hay citas en aquel dia.
+
+Crear el Admin:
+
+
+
+
+
+**** Hacer un filtro en los horarios que se permita agregar horarios por Dias de la semana.
+
+MIRAR DE HACER UN PWA PARA CONVERTIR EN APLICACIÓN MÓVIL
+PWA = Progressive web app
+
+
+*****
+    ****
+	EL HORARIO SE ESTÁ ACTUALIZANDO A LAS 02:00 Y NO A LA 00:00, PUEDE QUE SEA POR EL CAMBIO DE HORARIO
+	TALVEZ LOS FORMATOS DE HORARIO DIFERENTES ESTEAN INTERFIRIENDO EN ESTO.
+	MIRAR DE CAMBIAR TODO A HORARIO DE ESPAÑA
+    ****
+*****
+
+
+**** Mirar la posibilidad de agregar date-fns para gestionar los horarios
+**** Talvez cambiar todos los formatos de horarios con date-fns-tz ***** !!IMPORTANTE
+**** Verificar los dias de la semana en el calendário de "semana" en Inicio. (no se muestra en Domingo)
