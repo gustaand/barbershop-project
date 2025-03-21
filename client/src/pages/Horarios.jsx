@@ -59,6 +59,8 @@ const Horarios = () => {
 
       </div>
 
+      <div className="h-[90px]"></div>
+
       {modalHorario &&
         <ModalCrearHorario onClose={handleCloseModal} />
       }

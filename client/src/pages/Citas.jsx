@@ -103,7 +103,7 @@ const Citas = () => {
         onClick={() => setShowCreateModal(true)}
       ><FaPlus className={`transition-all duration-300 ${showCreateModal ? 'rotate-180' : ''}`} /></div>
 
-      <div className="h-[82.8px]"></div>
+      <div className="h-[90px]"></div>
 
       {showCreateModal &&
 

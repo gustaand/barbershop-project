@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactCalendar from 'react-calendar'
 import './Calendario/Calendar.css'
 import { FaRegCalendar } from "react-icons/fa";
@@ -8,18 +8,28 @@ import useAdmin from '../hooks/useAdmin';
 
 const ModalCrearCita = ({ onClick, onClose }) => {
 
+  const { crearCita, horarios } = useAdmin()
+
+  const fechaHoy = formatInTimeZone(new Date(), 'Europe/Madrid', 'yyyy-MM-dd');
+
   const [showCalendario, setShowCalendario] = useState(false)
-  const [fecha, setFecha] = useState(formatInTimeZone(new Date(), 'Europe/Madrid', 'yyyy-MM-dd HH:mm:ss zzz').split(' ')[0])
+  const [fecha, setFecha] = useState(fechaHoy)
   const [hora, setHora] = useState('')
+  const [horariosDisponibles, setHorariosDisponibles] = useState([])
   const [nombreCliente, setNombreCliente] = useState('')
   const [telefono, setTelefono] = useState('')
 
-  const { crearCita } = useAdmin()
+  useEffect(() => {
+    if (!Array.isArray(horarios)) return;
+    const horariosFiltrados = horarios.filter(horario => !horario.fecha.includes(fecha));
+    setHorariosDisponibles(horariosFiltrados);
+  }, [fecha, horarios]);
+
 
   const handleDateCalendar = (date) => {
-    const fecha = new Date(date)
+    const nuevaFecha = new Date(date)
     // Manejar horario local con formatInTimeZone de 'date-fns-tz'
-    const fechaFormateada = formatInTimeZone(fecha, 'Europe/Madrid', 'yyyy-MM-dd HH:mm:ss zzz').split(' ')[0]
+    const fechaFormateada = formatInTimeZone(nuevaFecha, 'Europe/Madrid', 'yyyy-MM-dd')
     setFecha(fechaFormateada)
     setTimeout(() => {
       setShowCalendario(false)
@@ -32,7 +42,10 @@ const ModalCrearCita = ({ onClick, onClose }) => {
       await crearCita(datosCita)
 
       // Clear the form
-      setFecha(formatInTimeZone(new Date(), 'Europe/Madrid', 'yyyy-MM-dd HH:mm:ss zzz').split(' ')[0])
+      const nuevosHorarios = horariosDisponibles.filter(horario => horario.hora !== hora);
+
+      setHorariosDisponibles(nuevosHorarios);
+      setFecha(formatInTimeZone(new Date(), 'Europe/Madrid', 'yyyy-MM-dd'))
       setHora('')
       setNombreCliente('')
       setTelefono('')
@@ -75,12 +88,25 @@ const ModalCrearCita = ({ onClick, onClose }) => {
 
         <label className="flex w-full justify-between items-center gap-3 px-2">
           <p className="text-xl">Hora: </p>
-          <input
-            className="p-2 rounded w-7/12 text-center"
-            type="text"
-            // value={fecha}
+          <select
+            value={hora}
             onChange={(e) => setHora(e.target.value)}
-          />
+            className='flex items-center justify-between rounded bg-white w-7/12 p-2'
+          >
+            {horariosDisponibles.length ? (
+              horariosDisponibles.map(horario => (
+                <option
+                  key={horario._id}
+                  value={horario.hora}
+                  className='w-5/6 text-center'
+                >
+                  {horario.hora}
+                </option>
+              ))
+            ) : (
+              <option disabled className='w-5/6 text-center'>---</option>
+            )}
+          </select>
         </label >
 
         <label className="flex w-full justify-between items-center gap-3 px-2">
