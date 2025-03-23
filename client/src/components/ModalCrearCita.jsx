@@ -1,184 +1,163 @@
 import { useState, useEffect } from 'react';
-import ReactCalendar from 'react-calendar'
-import './Calendario/Calendar.css'
+import ReactCalendar from 'react-calendar';
+import './Calendario/Calendar.css';
 import { FaRegCalendar } from "react-icons/fa";
 import { GrClose } from "react-icons/gr";
 import { formatInTimeZone } from 'date-fns-tz';
 import useAdmin from '../hooks/useAdmin';
 
-const ModalCrearCita = ({ onClick, onClose }) => {
-
-  const { crearCita, horarios } = useAdmin()
+const ModalCrearCita = ({ onClose }) => {
+  const { crearCita, horarios, obtenerHorarios } = useAdmin(); // <-- Ahora obtenemos `obtenerHorarios`
 
   const fechaHoy = formatInTimeZone(new Date(), 'Europe/Madrid', 'yyyy-MM-dd');
+  const [showCalendario, setShowCalendario] = useState(false);
+  const [fecha, setFecha] = useState(fechaHoy);
+  const [hora, setHora] = useState('');
+  const [horaID, setHoraID] = useState('');
+  const [horariosDisponibles, setHorariosDisponibles] = useState([]);
+  const [nombreCliente, setNombreCliente] = useState('');
+  const [telefono, setTelefono] = useState('');
 
-  const [showCalendario, setShowCalendario] = useState(false)
-  const [fecha, setFecha] = useState(fechaHoy)
-  const [hora, setHora] = useState('')
-  const [horariosDisponibles, setHorariosDisponibles] = useState([])
-  const [nombreCliente, setNombreCliente] = useState('')
-  const [telefono, setTelefono] = useState('')
-
+  // Filtrar horarios disponibles
   useEffect(() => {
     if (!Array.isArray(horarios)) return;
+
     const horariosFiltrados = horarios.filter(horario => !horario.fecha.includes(fecha));
+
     setHorariosDisponibles(horariosFiltrados);
-  }, [fecha, horarios]);
 
-
-  const handleDateCalendar = (date) => {
-    const nuevaFecha = new Date(date)
-    // Manejar horario local con formatInTimeZone de 'date-fns-tz'
-    const fechaFormateada = formatInTimeZone(nuevaFecha, 'Europe/Madrid', 'yyyy-MM-dd')
-    setFecha(fechaFormateada)
-    setTimeout(() => {
-      setShowCalendario(false)
-    }, 100);
-  }
-
-  const handleCrearCita = async () => {
-    try {
-      const datosCita = { fecha, hora, nombreCliente, telefono }
-      await crearCita(datosCita)
-
-      // Clear the form
-      const nuevosHorarios = horariosDisponibles.filter(horario => horario.hora !== hora);
-
-      setHorariosDisponibles(nuevosHorarios);
-      setFecha(formatInTimeZone(new Date(), 'Europe/Madrid', 'yyyy-MM-dd'))
-      setHora('')
-      setNombreCliente('')
-      setTelefono('')
-
-      onClose()
-    } catch (error) {
-      console.error('Error al crear la cita:', error)
+    // **Seleccionar automáticamente el primer horario disponible**
+    if (horariosFiltrados.length > 0) {
+      setHora(horariosFiltrados[0].hora);
+      setHoraID(horariosFiltrados[0]._id);
+    } else {
+      setHora('');
+      setHoraID('');
     }
-  }
+  }, [fecha, horarios]); // <-- Escucha cambios en `horarios`
+
+  // Seleccionar fecha del calendario
+  const handleDateCalendar = (date) => {
+    const fechaFormateada = formatInTimeZone(new Date(date), 'Europe/Madrid', 'yyyy-MM-dd');
+    setFecha(fechaFormateada);
+    setShowCalendario(false);
+  };
+
+  // Crear la cita
+  const handleCrearCita = async () => {
+    if (!hora || !horaID) {
+      console.error('Error: No hay una hora seleccionada.');
+      return;
+    }
+
+    try {
+      const datosCita = { fecha, hora, nombreCliente, telefono };
+      await crearCita(datosCita, horaID);
+
+      // **Actualizar la lista de horarios en la API y estado global**
+      await obtenerHorarios(); // <-- Obtiene la lista actualizada desde el backend
+
+      // **Filtrar y actualizar la lista local**
+      setHorariosDisponibles(prev => prev.filter(horario => horario._id !== horaID));
+
+      // **Seleccionar automáticamente el nuevo primer horario disponible**
+      if (horariosDisponibles.length > 1) {
+        setHora(horariosDisponibles[1].hora);
+        setHoraID(horariosDisponibles[1]._id);
+      } else {
+        setHora('');
+        setHoraID('');
+      }
+
+      // **Limpiar otros campos**
+      setNombreCliente('');
+      setTelefono('');
+
+      onClose();
+    } catch (error) {
+      console.error('Error al crear la cita:', error);
+    }
+  };
 
   return (
     <div className='fixed flex justify-center items-center inset-0 z-40'>
+      <div className="absolute inset-0 bg-black opacity-50" onClick={onClose}></div>
 
-      <div
-        className="absolute inset-0 bg-black opacity-50"
-        onClick={onClose}
-      ></div>
+      <form className='flex flex-col gap-2 items-center w-4/5 bg-slate-100 pt-5 rounded-md shadow-md z-10 px-2'>
+        <h2 className="text-xl text-center mb-3 border-b border-slate-300 w-full pb-2">Crear cita</h2>
 
-      <form
-        className='flex flex-col box-border gap-2 items-center w-4/5 bg-slate-100 pt-5 rounded-md shadow-md z-10 px-2'
-      >
-        <div className="flex flex-col w-full items-center justify-center pt-2 py-3 mb-3 border-b border-slate-300">
-          <h2 className="text-xl text-center">Crear cita</h2>
-        </div>
-
-        <label
-          className="flex w-full justify-between items-center gap-3 px-2"
-          onClick={() => setShowCalendario(true)}
-        >
-          <p className="text-xl">Fecha: </p>
+        {/* Selección de Fecha */}
+        <label className="flex w-full justify-between items-center gap-3 px-2" onClick={() => setShowCalendario(true)}>
+          <p className="text-xl">Fecha:</p>
           <div className="flex items-center justify-between rounded bg-white w-7/12 p-2">
-            <div
-              className="w-5/6 text-center"
-            >
-              <p>{fecha.split("-").reverse().join("-")}</p>
-            </div>
-            <FaRegCalendar className="active:text-blue-600 transition-colors justify-self-end cursor pointer w-1/6" />
+            <p className="w-5/6 text-center">{fecha.split("-").reverse().join("-")}</p>
+            <FaRegCalendar className="cursor-pointer w-1/6" />
           </div>
-        </label >
+        </label>
 
+        {/* Selección de Hora */}
         <label className="flex w-full justify-between items-center gap-3 px-2">
-          <p className="text-xl">Hora: </p>
+          <p className="text-xl">Hora:</p>
           <select
             value={hora}
-            onChange={(e) => setHora(e.target.value)}
-            className='flex items-center justify-between rounded bg-white w-7/12 p-2'
+            className='rounded bg-white w-7/12 p-2'
+            onChange={(e) => {
+              const selectedHora = e.target.value;
+              const selectedHorario = horariosDisponibles.find(horario => horario.hora === selectedHora);
+              setHora(selectedHora);
+              setHoraID(selectedHorario?._id);
+            }}
           >
             {horariosDisponibles.length ? (
               horariosDisponibles.map(horario => (
-                <option
-                  key={horario._id}
-                  value={horario.hora}
-                  className='w-5/6 text-center'
-                >
+                <option key={horario._id} value={horario.hora}>
                   {horario.hora}
                 </option>
               ))
             ) : (
-              <option disabled className='w-5/6 text-center'>---</option>
+              <option disabled>---</option>
             )}
           </select>
-        </label >
+        </label>
 
+        {/* Nombre del Cliente */}
         <label className="flex w-full justify-between items-center gap-3 px-2">
-          <p className="text-xl">Cliente: </p>
-          <input
-            className="p-2 rounded w-7/12 text-center"
-            type="text"
-            // value={nombreCliente}
-            onChange={(e) => setNombreCliente(e.target.value)}
-          />
-        </label >
+          <p className="text-xl">Cliente:</p>
+          <input className="p-2 rounded w-7/12 text-center" type="text" value={nombreCliente} onChange={(e) => setNombreCliente(e.target.value)} />
+        </label>
 
+        {/* Teléfono del Cliente */}
         <label className="flex w-full justify-between items-center gap-3 px-2">
-          <p className="text-xl">Telefono: </p>
-          <input
-            className="p-2 rounded w-7/12 text-center"
-            type="text"
-            // value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
-          />
-        </label >
+          <p className="text-xl">Teléfono:</p>
+          <input className="p-2 rounded w-7/12 text-center" type="text" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+        </label>
 
+        {/* Botones de Acción */}
         <div className='flex justify-between items-center w-full border-t border-slate-300 mt-3'>
-          <button
-            type="button"
-            className='p-4 w-1/2 text-black rounded-b-md active:bg-gray-200 transition-all'
-            onClick={handleCrearCita}
-          >Crear Cita</button>
-
+          <button type="button" className='p-4 w-1/2 text-black active:bg-gray-200' onClick={handleCrearCita}>Crear Cita</button>
           <div className='border-l h-9 border-slate-300'></div>
-
-          <button
-            type="button"
-            className='p-4 w-1/2 text-black rounded-b-md active:bg-gray-200 transition-all'
-            onClick={onClose}
-          >Cancelar</button>
+          <button type="button" className='p-4 w-1/2 text-black active:bg-gray-200' onClick={onClose}>Cancelar</button>
         </div>
-
       </form>
 
-      {/* CALENDARIO //!ARREGLAR DESIGN (botón de cerrar) */}
-      {showCalendario &&
-        <div className='fixed flex-col justify-center flex w-full h-full rounded-md shadow-md z-10' >
-
-          <div
-            className="absolute inset-0"
-            onClick={() => setShowCalendario(false)}
-          ></div>
+      {/* Calendario */}
+      {showCalendario && (
+        <div className='fixed flex-col justify-center flex w-full h-full rounded-md shadow-md z-10'>
+          <div className="absolute inset-0" onClick={() => setShowCalendario(false)}></div>
 
           <div className='bg-white z-10'>
             <div className='flex w-full justify-end px-2 py-4'>
-              <button
-                className='active:scale-125 transition-transform opacity-70 hover:opacity-100 px-4'
-                onClick={() => setShowCalendario(false)}
-              >
+              <button className='active:scale-125 transition-transform px-4' onClick={() => setShowCalendario(false)}>
                 <GrClose />
               </button>
             </div>
 
-            <ReactCalendar
-              minDate={new Date()}
-              className={`REACT-CALENDAR border-none px-2 pb-5 rounded-none transition-all z-10 overflow-hidden`}
-              view='month'
-              onClickDay={(date) => handleDateCalendar(date)}
-            // onChange={onChange}
-            />
+            <ReactCalendar minDate={new Date()} className='border-none px-2 pb-5' view='month' onClickDay={handleDateCalendar} />
           </div>
-
-        </div >
-      }
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default ModalCrearCita
+export default ModalCrearCita;

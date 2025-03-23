@@ -110,6 +110,20 @@ export const AdminProvider = ({ children }) => {
     listarHorarios()
   }, [])
 
+  // OBTENER HORARIOS
+  const obtenerHorarios = async () => {
+    try {
+      const { data } = await clienteAxios.get("/horarios"); // <--- Asegúrate de que este endpoint sea correcto
+      setHorarios(data);
+    } catch (error) {
+      console.error("Error al obtener horarios:", error);
+    }
+  };
+
+  useEffect(() => {
+    obtenerHorarios();
+  }, []);
+
   // COMPLETAR / ELIMINAR CITA
   const completarCita = async (id) => {
     try {
@@ -146,12 +160,13 @@ export const AdminProvider = ({ children }) => {
   }
 
   // CREAR CITA
-  const crearCita = async (cita) => {
+  const crearCita = async (cita, horaID) => {
     const fechaActual = formatInTimeZone(new Date(), 'Europe/Madrid', 'yyyy-MM-dd HH:mm:ss zzz').split(' ')[0]
     try {
       const { data } = await clienteAxios.post("/citas", cita)
-
       console.log(data)
+      await clienteAxios.post(`/horarios/${horaID}/agregar-fecha`, { fecha: cita.fecha })
+      await obtenerHorarios(); // Actualizar horarios
 
       // Actualizar citas semana
       setCitaSemana(prevCitaSemana => [...prevCitaSemana, data])
@@ -217,7 +232,8 @@ export const AdminProvider = ({ children }) => {
         editarCita,
         crearCita,
         crearHorario,
-        horarios
+        horarios,
+        obtenerHorarios
       }}
     >
       {children}

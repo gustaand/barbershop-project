@@ -11,7 +11,7 @@ import { validarToken } from "../middlewares/validateJWT.js";
 const router = Router();
 
 router.get('/', listarHorarios);
-router.put('/:id/agregar-fecha', agregarFechaHorario);
+router.post('/:id/agregar-fecha', agregarFechaHorario);
 
 // Admin Routes
 router.post('/', validarToken, crearHorarios);
