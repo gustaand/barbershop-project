@@ -79,3 +79,20 @@ export const agregarFechaHorario = async (req, res) => {
     res.status(500).json({ msg: "Error del servidor" });
   }
 }
+
+export const eliminarFechaHorario = async (req, res) => {
+  try {
+    const { horaID, fecha } = req.body
+
+    const horario = await Horario.findById(horaID);
+    if (!horario) return res.status(404).json({ message: "Horario no encontrado" });
+
+    horario.fecha = horario.fecha.filter(f => f !== fecha);
+    await horario.save()
+
+    res.json(horario)
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}

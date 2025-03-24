@@ -4,7 +4,8 @@ import {
   crearHorarios,
   eliminarHorario,
   listarHorarios,
-  agregarFechaHorario
+  agregarFechaHorario,
+  eliminarFechaHorario
 } from "../controllers/horarioControllers.js";
 import { validarToken } from "../middlewares/validateJWT.js";
 
@@ -18,4 +19,6 @@ router.post('/', validarToken, crearHorarios);
 router.put('/:id', validarToken, actualizarHorario);
 router.delete('/:id', validarToken, eliminarHorario);
 
+// Fecha Horario
+router.post('/:horaID/eliminar-fecha', validarToken, eliminarFechaHorario);
 export default router;

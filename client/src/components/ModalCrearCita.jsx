@@ -12,7 +12,7 @@ const ModalCrearCita = ({ onClose }) => {
   const fechaHoy = formatInTimeZone(new Date(), 'Europe/Madrid', 'yyyy-MM-dd');
   const [showCalendario, setShowCalendario] = useState(false);
   const [fecha, setFecha] = useState(fechaHoy);
-  const [hora, setHora] = useState('');
+  const [horaObject, setHoraObject] = useState({});
   const [horaID, setHoraID] = useState('');
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
   const [nombreCliente, setNombreCliente] = useState('');
@@ -28,10 +28,10 @@ const ModalCrearCita = ({ onClose }) => {
 
     // **Seleccionar automáticamente el primer horario disponible**
     if (horariosFiltrados.length > 0) {
-      setHora(horariosFiltrados[0].hora);
+      setHoraObject(horariosFiltrados[0]);
       setHoraID(horariosFiltrados[0]._id);
     } else {
-      setHora('');
+      setHoraObject({});
       setHoraID('');
     }
   }, [fecha, horarios]); // <-- Escucha cambios en `horarios`
@@ -45,27 +45,34 @@ const ModalCrearCita = ({ onClose }) => {
 
   // Crear la cita
   const handleCrearCita = async () => {
-    if (!hora || !horaID) {
+
+    if (!horaObject || !horaID) {
       console.error('Error: No hay una hora seleccionada.');
       return;
     }
-
+    console.log(horaObject)
     try {
-      const datosCita = { fecha, hora, nombreCliente, telefono };
+      const datosCita = {
+        fecha,
+        hora: horaObject,
+        nombreCliente,
+        telefono
+      };
+
       await crearCita(datosCita, horaID);
 
       // **Actualizar la lista de horarios en la API y estado global**
-      await obtenerHorarios(); // <-- Obtiene la lista actualizada desde el backend
+      await obtenerHorarios(); // Obtiene la lista actualizada desde el backend
 
       // **Filtrar y actualizar la lista local**
       setHorariosDisponibles(prev => prev.filter(horario => horario._id !== horaID));
 
       // **Seleccionar automáticamente el nuevo primer horario disponible**
       if (horariosDisponibles.length > 1) {
-        setHora(horariosDisponibles[1].hora);
+        setHoraObject(horariosDisponibles[1]); // Guardar el objeto completo
         setHoraID(horariosDisponibles[1]._id);
       } else {
-        setHora('');
+        setHoraObject(null);
         setHoraID('');
       }
 
@@ -78,6 +85,7 @@ const ModalCrearCita = ({ onClose }) => {
       console.error('Error al crear la cita:', error);
     }
   };
+
 
   return (
     <div className='fixed flex justify-center items-center inset-0 z-40'>
@@ -97,15 +105,17 @@ const ModalCrearCita = ({ onClose }) => {
 
         {/* Selección de Hora */}
         <label className="flex w-full justify-between items-center gap-3 px-2">
+
           <p className="text-xl">Hora:</p>
+
           <select
-            value={hora}
+            value={horaObject?.hora || ''}
             className='rounded bg-white w-7/12 p-2'
             onChange={(e) => {
               const selectedHora = e.target.value;
               const selectedHorario = horariosDisponibles.find(horario => horario.hora === selectedHora);
-              setHora(selectedHora);
-              setHoraID(selectedHorario?._id);
+              setHoraObject(selectedHorario || {}); // Asegura que no sea `undefined`
+              setHoraID(selectedHorario?._id || '');
             }}
           >
             {horariosDisponibles.length ? (
@@ -118,6 +128,7 @@ const ModalCrearCita = ({ onClose }) => {
               <option disabled>---</option>
             )}
           </select>
+
         </label>
 
         {/* Nombre del Cliente */}

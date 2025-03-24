@@ -6,8 +6,8 @@ const citaSchema = new mongoose.Schema({
     require: true
   },
   hora: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Horario'
   },
   nombreCliente: {
     type: String,

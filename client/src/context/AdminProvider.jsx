@@ -1,7 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import clienteAxios from "../config/clienteAxios";
-import axios from "axios";
 import Cookies from "js-cookie";
 import { formatInTimeZone } from "date-fns-tz";
 
@@ -38,10 +37,10 @@ export const AdminProvider = ({ children }) => {
           const { data } = await clienteAxios(`/citas/citas-dia?fecha=${fechaActual}`)
           // Ordenar las citas por horario de menor a mayor
           const citasOrdenadas = data.sort((a, b) => {
-            const horaA = Number(a.hora.replace(':', ''));
-            const horaB = Number(b.hora.replace(':', ''));
+            const horaA = Number((a.hora?.hora || '').replace(':', ''));
+            const horaB = Number((b.hora?.hora || '').replace(':', ''));
             return horaA - horaB;
-          })
+          });
           console.log(citasOrdenadas)
           setCitaHoy(citasOrdenadas);
         } catch (error) {
@@ -72,8 +71,8 @@ export const AdminProvider = ({ children }) => {
       const mostrarProximaCita = async () => {
         const horaActual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        const proximaCitaEncontrada = citaHoy.find(cita => cita.hora > horaActual);
-        console.log(proximaCitaEncontrada?.hora)
+        const proximaCitaEncontrada = citaHoy.find(cita => cita.hora?.hora > horaActual);
+        console.log(proximaCitaEncontrada?.hora?.hora)
         setProximaCita(proximaCitaEncontrada);
       }
 
@@ -94,8 +93,8 @@ export const AdminProvider = ({ children }) => {
         const { data } = await clienteAxios(`/horarios`)
 
         const newHorarios = data.sort((a, b) => {
-          const [horaA, minA] = a.hora.split(":").map(Number);
-          const [horaB, minB] = b.hora.split(":").map(Number);
+          const [horaA, minA] = a.hora?.hora.split(":").map(Number) || [0, 0];
+          const [horaB, minB] = b.hora?.hora.split(":").map(Number) || [0, 0];
 
           return horaA !== horaB ? horaA - horaB : minA - minB;
         });
@@ -125,12 +124,20 @@ export const AdminProvider = ({ children }) => {
   }, []);
 
   // COMPLETAR / ELIMINAR CITA
-  const completarCita = async (id) => {
+  const completarCita = async (citaID, horaID, fecha) => {
     try {
-      await clienteAxios.delete(`/citas/${id}`)
-      const citasActualizadas = citaHoy.filter(cita => cita._id !== id)
-      const semanaActualizada = citaSemana.filter(cita => cita._id !== id)
-      const calendarioActualizado = citaCalendario.filter(cita => cita._id !== id)
+      console.log(`URL de eliminación: /horarios/${horaID}/eliminar-fecha`);
+      console.log("Datos enviados:", { fecha });
+      // Eliminar Cita
+      await clienteAxios.delete(`/citas/${citaID}`)
+      // Eliminar fecha del horario
+      await clienteAxios.post(`/horarios/${horaID}/eliminar-fecha`, { fecha })
+      // Actualizar horario
+      await obtenerHorarios();
+
+      const citasActualizadas = citaHoy.filter(cita => cita._id !== citaID)
+      const semanaActualizada = citaSemana.filter(cita => cita._id !== citaID)
+      const calendarioActualizado = citaCalendario.filter(cita => cita._id !== citaID)
       console.log(citasActualizadas)
       console.log(semanaActualizada)
       setCitaHoy(citasActualizadas)
@@ -146,6 +153,7 @@ export const AdminProvider = ({ children }) => {
     console.log(cita.id)
     try {
       const { data } = await clienteAxios.put(`/citas/${cita.id}`, cita)
+      await clienteAxios.post(`/horarios/${horaID}/agregar-fecha`, { fecha: cita.fecha })
       const citasActualizadas = citaHoy.map(c => c._id === cita.id ? data : c)
       const semanaActualizada = citaSemana.map(c => c._id === cita.id ? data : c)
       const calendarioActualizado = citaCalendario.map(c => c._id === cita.id ? data : c)
@@ -174,8 +182,8 @@ export const AdminProvider = ({ children }) => {
       // Actualizar cita calendario en orden
       if (data.fecha === fechaCalendario) {
         const citasActualizadas = [...citaCalendario, data].sort((a, b) => {
-          const horaA = Number(a.hora.replace(':', ''));
-          const horaB = Number(b.hora.replace(':', ''));
+          const horaA = Number((a.hora?.hora || '').replace(':', ''));
+          const horaB = Number((b.hora?.hora || '').replace(':', ''));
           return horaA - horaB;
         })
         setCitaCalendario(citasActualizadas);
@@ -184,8 +192,8 @@ export const AdminProvider = ({ children }) => {
       // Actualizar citas fecha actual
       if (data.fecha === fechaActual) {
         const citasActualizadas = [...citaHoy, data].sort((a, b) => {
-          const horaA = Number(a.hora.replace(':', ''));
-          const horaB = Number(b.hora.replace(':', ''));
+          const horaA = Number((a.hora?.hora || '').replace(':', ''));
+          const horaB = Number((b.hora?.hora || '').replace(':', ''));
           return horaA - horaB;
         })
         setCitaHoy(citasActualizadas)
@@ -206,8 +214,8 @@ export const AdminProvider = ({ children }) => {
         const newHorarios = [...prevHorarios, data];
 
         return newHorarios.sort((a, b) => {
-          const [horaA, minA] = a.hora.split(":").map(Number);
-          const [horaB, minB] = b.hora.split(":").map(Number);
+          const [horaA, minA] = a.hora?.hora.split(":").map(Number) || [0, 0];
+          const [horaB, minB] = b.hora?.hora.split(":").map(Number) || [0, 0];
 
           return horaA !== horaB ? horaA - horaB : minA - minB;
         });

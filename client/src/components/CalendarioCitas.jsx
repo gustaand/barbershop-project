@@ -11,6 +11,8 @@ const CalendarioCitas = () => {
   const [showModal, setShowModal] = useState(false)
   const [showModalActualizar, setShowModalActualizar] = useState(false)
   const [citaId, setCitaId] = useState('')
+  const [fechaCita, setFechaCita] = useState('')
+  const [horarioID, setHorarioID] = useState('')
 
   const { citaCalendario, completarCita, setCitaParaActualizar } = useAdmin()
 
@@ -33,7 +35,7 @@ const CalendarioCitas = () => {
           >
             <div className="flex flex-col w-full">
               <div className="flex gap-5">
-                <p>Horario: <span className="font-bold">{cita.hora}</span></p>
+                <p>Horario: <span className="font-bold">{cita?.hora.hora}</span></p>
               </div >
 
               <Separator className='my-1' />
@@ -58,6 +60,8 @@ const CalendarioCitas = () => {
                 onClick={() => {
                   setShowModal(true)
                   setCitaId(cita._id)
+                  setFechaCita(cita.fecha)
+                  setHorarioID(cita.hora._id)
                   console.log(citaId)
                 }}
               ><MdDoneOutline /></button>
@@ -73,7 +77,7 @@ const CalendarioCitas = () => {
           p='¿Quieres eliminar esta cita?'
           btConfirmValue='Eliminar'
           onClick={() => {
-            completarCita(citaId)
+            completarCita(citaId, horarioID, fechaCita)
             setShowModal(false)
           }}
           onClose={handleCloseModal}

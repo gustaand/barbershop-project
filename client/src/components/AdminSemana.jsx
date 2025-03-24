@@ -42,7 +42,7 @@ const AdminSemana = ({ fecha }) => {
           >
             <div className="flex flex-col w-full">
               <div className="flex gap-5">
-                <p>Horario: <span className="font-bold">{cita.hora}</span></p>
+                <p>Horario: <span className="font-bold">{cita.hora?.hora}</span></p>
               </div >
 
               <Separator className='my-1' />

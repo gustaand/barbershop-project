@@ -26,10 +26,10 @@ const Citas = () => {
         const { data } = await clienteAxios(`/citas/citas-dia?fecha=${selectedDate}`)
 
         const citasOrdenadas = data.sort((a, b) => {
-          const horaA = Number(a.hora.replace(':', ''));
-          const horaB = Number(b.hora.replace(':', ''));
+          const horaA = Number((a.hora?.hora || '').replace(':', ''));
+          const horaB = Number((b.hora?.hora || '').replace(':', ''));
           return horaA - horaB;
-        })
+        });
         setCitaCalendario(citasOrdenadas)
         console.log(citaCalendario)
 

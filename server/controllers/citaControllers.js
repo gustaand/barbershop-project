@@ -4,7 +4,7 @@ export const crearCita = async (req, res) => {
   try {
     const { fecha, hora, nombreCliente, telefono } = req.body;
 
-    const existeCita = await Cita.findOne({ fecha, hora });
+    const existeCita = await Cita.findOne({ fecha, hora }).populate("hora", "hora");
 
     if (existeCita) {
       const error = new Error('Cita ya reservada.');
@@ -14,7 +14,9 @@ export const crearCita = async (req, res) => {
     const nuevaCita = new Cita({ fecha, hora, nombreCliente, telefono });
 
     const citaCreada = await nuevaCita.save();
-    res.json(citaCreada);
+    const citaConHorario = await Cita.findById(citaCreada._id).populate("hora", "hora");
+
+    res.json(citaConHorario);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: error.message });
@@ -25,7 +27,7 @@ export const encontrarCita = async (req, res) => {
 
   const { fecha } = req.body;
   try {
-    const existeCita = await Cita.find({ fecha });
+    const existeCita = await Cita.find({ fecha }).populate("hora", "hora");
 
     return res.status(200).json(existeCita);
   } catch (error) {
@@ -53,7 +55,7 @@ export const eliminarCita = async (req, res) => {
 
 export const actualizarCita = async (req, res) => {
   try {
-    const cita = await Cita.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const cita = await Cita.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate("hora", "hora");
 
     if (!cita) return res.status(404).json({ msg: "Cita no encontrada." });
 
@@ -67,7 +69,7 @@ export const actualizarCita = async (req, res) => {
 // GET
 export const listarCitas = async (req, res) => {
   try {
-    const citas = await Cita.find();
+    const citas = await Cita.find().populate("hora", "hora");
 
     if (!citas) return res.json({ msg: "No hay citas" });
 
@@ -80,47 +82,56 @@ export const listarCitas = async (req, res) => {
 
 export const listarCitaDiaActual = async (req, res) => {
   try {
-    const fechaActual = new Date(req.query.fecha)
-    const fechaFormateada = fechaActual.toISOString().split('T')[0]
-    console.log(fechaFormateada) //todo: arreglar el problema con esta fecha que se está enviando
-    const citasDiaActual = await Cita.find({ fecha: fechaFormateada });
+    if (!req.query.fecha) {
+      return res.status(400).json({ message: 'Fecha requerida en query' });
+    }
+
+    const fechaActual = new Date(req.query.fecha);
+    if (isNaN(fechaActual.getTime())) {
+      return res.status(400).json({ message: 'Fecha inválida' });
+    }
+
+    const fechaFormateada = fechaActual.toISOString().split('T')[0];
+
+    const citasDiaActual = await Cita.find({ fecha: fechaFormateada }).populate("hora", "hora");
 
     res.json(citasDiaActual);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ mensaje: 'Error del servidor' });
+    res.status(500).json({ message: 'Error del servidor' });
   }
-}
+};
 
 export const listarCitaDiasSemana = async (req, res) => {
   try {
-    // Obtener la fecha actual
-    const fechaActual = new Date(req.query.fecha)
-    console.log(fechaActual);
+    if (!req.query.fecha) {
+      return res.status(400).json({ message: 'Fecha requerida en query' });
+    }
 
-    // Obtener el número del día de la semana (0: Domingo, 1: Lunes, ..., 6: Sábado)
-    const numeroDiaSemana = fechaActual.getDay();
+    const fechaActual = new Date(req.query.fecha);
+    if (isNaN(fechaActual.getTime())) {
+      return res.status(400).json({ message: 'Fecha inválida' });
+    }
 
-    // Calcular la fecha de inicio de la semana actual (lunes)
-    const primerDiaSemana = new Date(fechaActual);
-    primerDiaSemana.setDate(fechaActual.getDate() - numeroDiaSemana + 1);
+    let numeroDiaSemana = fechaActual.getDay();
 
-    // Calcular la fecha de fin de la semana actual (domingo)
-    const ultimoDiaSemana = new Date(fechaActual);
-    ultimoDiaSemana.setDate(fechaActual.getDate() - numeroDiaSemana + 7);
+    // Si es domingo (0), restamos 6 para obtener el lunes pasado
+    let primerDiaSemana = new Date(fechaActual);
+    primerDiaSemana.setDate(fechaActual.getDate() - (numeroDiaSemana === 0 ? 6 : numeroDiaSemana - 1));
 
-    // Convertir las fechas al formato requerido (YYYY-MM-DD)
+    let ultimoDiaSemana = new Date(primerDiaSemana);
+    ultimoDiaSemana.setDate(primerDiaSemana.getDate() + 6);
+
     const fechaInicioSemana = primerDiaSemana.toISOString().split('T')[0];
     const fechaFinSemana = ultimoDiaSemana.toISOString().split('T')[0];
 
-    // Buscar las citas de la semana actual en la base de datos
     const citasSemanaActual = await Cita.find({
       fecha: { $gte: fechaInicioSemana, $lte: fechaFinSemana }
-    });
+    }).populate("hora", "hora");
 
     res.status(200).json(citasSemanaActual);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ mensaje: 'Error del servidor' });
+    res.status(500).json({ message: 'Error del servidor' });
   }
 };

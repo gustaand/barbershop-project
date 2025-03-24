@@ -50,7 +50,7 @@ const Home = () => {
             <div className="w-full">
               {proximaCita ? (
                 <div className='pt-3 pb-6 w-full text-center border-b border-slate-300 text-xl font-normal'>
-                  Proxima Cita: <span className='font-semibold'>Hoy - {proximaCita?.hora}</span>
+                  Proxima Cita: <span className='font-semibold'>Hoy - {proximaCita?.hora?.hora}</span>
                 </div>
 
               ) : (
