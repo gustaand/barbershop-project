@@ -82,7 +82,8 @@ export const agregarFechaHorario = async (req, res) => {
 
 export const eliminarFechaHorario = async (req, res) => {
   try {
-    const { horaID, fecha } = req.body
+    const { horaID } = req.params;
+    const { fecha } = req.body;
 
     const horario = await Horario.findById(horaID);
     if (!horario) return res.status(404).json({ message: "Horario no encontrado" });

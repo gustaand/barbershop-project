@@ -4,14 +4,16 @@ import Separator from "./Separator"
 import { FaRegEdit } from "react-icons/fa";
 import { MdDoneOutline } from "react-icons/md";
 import Modal from "./Modal";
-import ModalActualizarCita from "./ModalActualizarCita";
+import ModalCrearCita from "./ModalCrearCita.jsx";
 
 const AdminSemana = ({ fecha }) => {
 
   const [citasPorFecha, setCitasPorFecha] = useState()
   const [showModal, setShowModal] = useState(false)
-  const [showModalActualizar, setShowModalActualizar] = useState(false)
+  const [showModalCrearActualizar, setShowModalCrearActualizar] = useState(false)
   const [citaId, setCitaId] = useState('')
+  const [fechaCita, setFechaCita] = useState('')
+  const [horarioID, setHorarioID] = useState('')
 
   const { citaSemana, completarCita, setCitaParaActualizar } = useAdmin()
 
@@ -28,7 +30,8 @@ const AdminSemana = ({ fecha }) => {
   }
 
   const handleCloseModalActualizar = () => {
-    setShowModalActualizar(false)
+    setShowModalCrearActualizar(false)
+    setCitaParaActualizar({})
   }
 
   return (
@@ -59,14 +62,20 @@ const AdminSemana = ({ fecha }) => {
                 className="text-xl"
                 onClick={() => {
                   setCitaParaActualizar(cita)
-                  setShowModalActualizar(true)
+                  setShowModalCrearActualizar(true)
                 }}
-              ><FaRegEdit /></button>
+              >
+                <FaRegEdit />
+              </button>
+
               <button
                 className="text-xl text-green-800"
                 onClick={() => {
                   setShowModal(true)
                   setCitaId(cita._id)
+                  setFechaCita(cita.fecha)
+                  setHorarioID(cita.hora._id)
+                  console.log(citaId)
                 }}
               ><MdDoneOutline /></button>
             </div>
@@ -84,15 +93,14 @@ const AdminSemana = ({ fecha }) => {
           p='¿Quieres eliminar esta cita?'
           btConfirmValue='Eliminar'
           onClick={() => {
-            completarCita(citaId)
+            completarCita(citaId, horarioID, fechaCita)
             setShowModal(false)
           }}
           onClose={handleCloseModal}
         />
       }
-
-      {showModalActualizar &&
-        <ModalActualizarCita
+      {showModalCrearActualizar &&
+        <ModalCrearCita
           onClose={handleCloseModalActualizar}
         />
       }

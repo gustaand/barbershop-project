@@ -4,12 +4,12 @@ import Separator from "./Separator"
 import { FaRegEdit } from "react-icons/fa";
 import { MdDoneOutline } from "react-icons/md";
 import Modal from "./Modal";
-import ModalActualizarCita from "./ModalActualizarCita";
+import ModalCrearCita from "./ModalCrearCita.jsx";
 
 const CalendarioCitas = () => {
 
   const [showModal, setShowModal] = useState(false)
-  const [showModalActualizar, setShowModalActualizar] = useState(false)
+  const [showModalCrearActualizar, setShowModalCrearActualizar] = useState(false)
   const [citaId, setCitaId] = useState('')
   const [fechaCita, setFechaCita] = useState('')
   const [horarioID, setHorarioID] = useState('')
@@ -21,7 +21,8 @@ const CalendarioCitas = () => {
   }
 
   const handleCloseModalActualizar = () => {
-    setShowModalActualizar(false)
+    setShowModalCrearActualizar(false)
+    setCitaParaActualizar({})
   }
 
   return (
@@ -52,9 +53,12 @@ const CalendarioCitas = () => {
                 className="text-xl"
                 onClick={() => {
                   setCitaParaActualizar(cita)
-                  setShowModalActualizar(true)
+                  setShowModalCrearActualizar(true)
                 }}
-              ><FaRegEdit /></button>
+              >
+                <FaRegEdit />
+              </button>
+
               <button
                 className="text-xl text-green-800"
                 onClick={() => {
@@ -84,8 +88,8 @@ const CalendarioCitas = () => {
         />
       }
 
-      {showModalActualizar &&
-        <ModalActualizarCita
+      {showModalCrearActualizar &&
+        <ModalCrearCita
           onClose={handleCloseModalActualizar}
         />
       }

@@ -126,8 +126,6 @@ export const AdminProvider = ({ children }) => {
   // COMPLETAR / ELIMINAR CITA
   const completarCita = async (citaID, horaID, fecha) => {
     try {
-      console.log(`URL de eliminación: /horarios/${horaID}/eliminar-fecha`);
-      console.log("Datos enviados:", { fecha });
       // Eliminar Cita
       await clienteAxios.delete(`/citas/${citaID}`)
       // Eliminar fecha del horario
@@ -149,23 +147,33 @@ export const AdminProvider = ({ children }) => {
   }
 
   // EDITAR CITA
-  const editarCita = async (cita) => {
-    console.log(cita.id)
+  const editarCita = async (cita, idHoraEliminarFecha) => {
+    console.log("Nueva Hora ID:", cita.hora._id);
+    console.log("Hora Anterior ID:", idHoraEliminarFecha);
+
     try {
-      const { data } = await clienteAxios.put(`/citas/${cita.id}`, cita)
-      await clienteAxios.post(`/horarios/${horaID}/agregar-fecha`, { fecha: cita.fecha })
-      const citasActualizadas = citaHoy.map(c => c._id === cita.id ? data : c)
-      const semanaActualizada = citaSemana.map(c => c._id === cita.id ? data : c)
-      const calendarioActualizado = citaCalendario.map(c => c._id === cita.id ? data : c)
-      console.log(citasActualizadas)
-      console.log(semanaActualizada)
-      setCitaHoy(citasActualizadas)
-      setCitaSemana(semanaActualizada)
-      setCitaCalendario(calendarioActualizado)
+      // Actualizar Cita
+      const { data } = await clienteAxios.put(`/citas/${cita.id}`, cita);
+
+      // Agregar nueva fecha al horario
+      await clienteAxios.post(`/horarios/${cita.hora?._id}/agregar-fecha`, { fecha: cita.fecha });
+
+      // Eliminar fecha anterior si existía
+      if (idHoraEliminarFecha) {
+        await clienteAxios.post(`/horarios/${idHoraEliminarFecha}/eliminar-fecha`, { fecha: cita.fecha });
+      }
+
+      // Actualizar lista de horarios
+      await obtenerHorarios();
+
+      // Actualizar estado de citas
+      setCitaHoy((prev) => prev.map(c => (c._id === cita.id ? data : c)));
+      setCitaSemana((prev) => prev.map(c => (c._id === cita.id ? data : c)));
+      setCitaCalendario((prev) => prev.map(c => (c._id === cita.id ? data : c)));
     } catch (error) {
-      console.log(error)
+      console.log("Error al actualizar cita:", error);
     }
-  }
+  };
 
   // CREAR CITA
   const crearCita = async (cita, horaID) => {
