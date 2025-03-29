@@ -4,8 +4,7 @@ import ModalCrearHorario from "../components/ModalCrearHorario"
 import { TbClockHour5 } from "react-icons/tb";
 import { FaPlus } from "react-icons/fa6";
 import useAdmin from "../hooks/useAdmin";
-import Switch from "../components/Switch";
-import Separator from "../components/Separator";
+import Horario from "../components/Horario";
 
 
 const Horarios = () => {
@@ -38,20 +37,11 @@ const Horarios = () => {
 
       <div className='h-[123px]'></div>
 
-      <div className="grid grid-cols-2 ">
+      <div className={horarios.length ? 'grid grid-cols-2' : 'flex justify-center items-center w-full'}>
 
         {horarios && horarios.length > 0 ? (
           horarios.map(horario => (
-            <div
-              key={horario._id}
-              className="flex flex-col justify-center items-center p-2 bg-white rounded-md m-2 shadow-md box-border"
-            >
-              <h2 className="font-semibold text-2xl text-neutral-700">{horario.hora}</h2>
-              <Separator className={`py-1`} />
-              <div className="flex justify-between gap-2 pt-2">
-                <Switch label="Activo" />
-              </div>
-            </div>
+            <Horario key={horario._id} horario={horario} />
           ))
         ) : (
           <div>No hay horarios</div>

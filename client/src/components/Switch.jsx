@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 //  Accept the onClick prop
 const BasicSwitch = ({ label, onClick, className }) => {
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(true);
 
   const toggleSwitch = () => {
     setIsChecked(!isChecked);

@@ -19,109 +19,80 @@ export const AdminProvider = ({ children }) => {
   const location = useLocation()
   const token = Cookies.get('token')
 
-  // CITAS DEL DIA
-  useEffect(() => {
-
-    if (location.pathname === '/admin' && token) {
-
-      // todo: Agregat un loading
-
-      // CITAS DIA ACTUAL
-      // TODO: Agregar un actualizador a cada cierto tiempo (Talvez una dependencia des del Calendario del usuario, Un gatillo que haz con que cambie)
-      // Agregar un gatillo que cuando cambie las citas, se llama otra vez este useEffect?
-      // TODO: Separar las dos funciones en useEffects diferentes.
-      const listarCitasDiaActual = async () => {
-
-        try {
-          const fechaActual = new Date()
-          const { data } = await clienteAxios(`/citas/citas-dia?fecha=${fechaActual}`)
-          // Ordenar las citas por horario de menor a mayor
-          const citasOrdenadas = data.sort((a, b) => {
-            const horaA = Number((a.hora?.hora || '').replace(':', ''));
-            const horaB = Number((b.hora?.hora || '').replace(':', ''));
-            return horaA - horaB;
-          });
-          console.log(citasOrdenadas)
-          setCitaHoy(citasOrdenadas);
-        } catch (error) {
-          console.log(error)
-        }
-      }
-
-      // CITAS SEMANA
-      const listarCitasDiaSemana = async () => {
-        try {
-          const fechaActualSemana = new Date();
-          const { data } = await clienteAxios(`/citas/citas-semana?fecha=${fechaActualSemana}`);
-          setCitaSemana(data)
-        } catch (error) {
-          console.log(error)
-        }
-      }
-
-      listarCitasDiaActual()
-      listarCitasDiaSemana()
-    }
-  }, [token])
-
-  // PROXIMA CITA
-  useEffect(() => {
-
-    if (location.pathname === '/admin' && token) {
-      const mostrarProximaCita = async () => {
-        const horaActual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        const proximaCitaEncontrada = citaHoy.find(cita => cita.hora?.hora > horaActual);
-        console.log(proximaCitaEncontrada?.hora?.hora)
-        setProximaCita(proximaCitaEncontrada);
-      }
-
-      mostrarProximaCita()
-      const intervalo = setInterval(() => {
-        mostrarProximaCita()
-      }, 10 * 60 * 1000)
-
-      return () => clearInterval(intervalo);
-    }
-  }, [citaHoy, location.pathname])
-
-  useEffect(() => {
-
-    // HORARIOS
-    const listarHorarios = async () => {
-      try {
-        const { data } = await clienteAxios(`/horarios`)
-
-        const newHorarios = data.sort((a, b) => {
-          const [horaA, minA] = a.hora?.hora.split(":").map(Number) || [0, 0];
-          const [horaB, minB] = b.hora?.hora.split(":").map(Number) || [0, 0];
-
-          return horaA !== horaB ? horaA - horaB : minA - minB;
-        });
-
-        setHorarios(newHorarios)
-
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-    listarHorarios()
-  }, [])
-
-  // OBTENER HORARIOS
+  // Obtener horarios (Corrección: Evita llamadas duplicadas)
   const obtenerHorarios = async () => {
     try {
-      const { data } = await clienteAxios.get("/horarios"); // <--- Asegúrate de que este endpoint sea correcto
-      setHorarios(data);
+      const { data } = await clienteAxios.get("/horarios");
+      const horariosOrdenados = data.sort((a, b) => {
+        const [horaA, minA] = a.hora.split(":").map(Number);
+        const [horaB, minB] = b.hora.split(":").map(Number);
+        return horaA !== horaB ? horaA - horaB : minA - minB;
+      });
+
+      setHorarios(horariosOrdenados);
     } catch (error) {
       console.error("Error al obtener horarios:", error);
     }
   };
 
+  // Obtener citas del día
+  const listarCitasDiaActual = async () => {
+    try {
+      const fechaActual = new Date().toISOString().split("T")[0]; // 📌 Formato YYYY-MM-DD
+      const { data } = await clienteAxios(`/citas/citas-dia?fecha=${fechaActual}`);
+
+      const citasOrdenadas = data.sort((a, b) => {
+        const horaA = Number((a.hora?.hora || "").replace(":", ""));
+        const horaB = Number((b.hora?.hora || "").replace(":", ""));
+        return horaA - horaB;
+      });
+
+      setCitaHoy(citasOrdenadas);
+    } catch (error) {
+      console.error("Error al listar citas del día:", error);
+    }
+  };
+
+  // Obtener citas de la semana
+  const listarCitasDiaSemana = async () => {
+    try {
+      const fechaActual = new Date().toISOString().split("T")[0];
+      const { data } = await clienteAxios(`/citas/citas-semana?fecha=${fechaActual}`);
+      setCitaSemana(data);
+    } catch (error) {
+      console.error("Error al listar citas de la semana:", error);
+    }
+  };
+
+  // Obtener próxima cita
+  const mostrarProximaCita = () => {
+    const horaActual = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+    const proximaCita = citaHoy.find(cita => cita.hora?.hora > horaActual);
+    setProximaCita(proximaCita);
+  };
+
+  // Cargar Horarios (Se ejecuta siempre al cargar la app)
   useEffect(() => {
     obtenerHorarios();
   }, []);
+
+  // Cargar Citas del Día y Semana (Solo si el usuario está en `/admin` y tiene token)
+  useEffect(() => {
+    if (location.pathname === "/admin" && token) {
+      listarCitasDiaActual();
+      listarCitasDiaSemana();
+    }
+  }, [token, location.pathname]);
+
+  // 🔹 Actualizar Próxima Cita cada 10 minutos (Si hay citas hoy)
+  useEffect(() => {
+    if (location.pathname === "/admin" && token) {
+      mostrarProximaCita();
+      const intervalo = setInterval(mostrarProximaCita, 10 * 60 * 1000);
+      return () => clearInterval(intervalo);
+    }
+  }, [citaHoy, location.pathname]);
 
   // COMPLETAR / ELIMINAR CITA
   const completarCita = async (citaID, horaID, fecha) => {
