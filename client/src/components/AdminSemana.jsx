@@ -18,10 +18,16 @@ const AdminSemana = ({ fecha }) => {
   const { citaSemana, completarCita, setCitaParaActualizar } = useAdmin()
 
   useEffect(() => {
-    const citasFiltradas = citaSemana.filter(cita => cita.fecha === fecha)
-    citasFiltradas.sort((a, b) => a.hora.localeCompare(b.hora))
-    setCitasPorFecha(citasFiltradas)
-  }, [citaSemana, fecha])
+    const citasFiltradas = citaSemana.filter(cita => cita.fecha === fecha);
+
+    citasFiltradas.sort((a, b) => {
+      const horaA = a.hora?.hora || ""; // Asegura que no sea undefined
+      const horaB = b.hora?.hora || "";
+      return horaA.localeCompare(horaB);
+    });
+
+    setCitasPorFecha(citasFiltradas);
+  }, [citaSemana, fecha]);
 
   console.log(citasPorFecha)
 
