@@ -1,14 +1,25 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import useAdmin from "../hooks/useAdmin"
 
 const ModalCrearHorario = ({ onClose }) => {
 
   const horaActual = new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
   const [hora, setHora] = useState(horaActual)
-  const { crearHorario } = useAdmin()
 
+  const {
+    crearHorario,
+    horarioParaActualizar,
+    setHorarioParaActualizar,
+    actualizarHorario
+  } = useAdmin()
 
-  const handleCrearHorario = async () => {
+  useEffect(() => {
+    if (horarioParaActualizar?._id) {
+      setHora(horarioParaActualizar)
+    }
+  }, [horarioParaActualizar])
+
+  const handleSubmit = async () => {
 
     try {
       const dataHora = { hora }
@@ -50,7 +61,7 @@ const ModalCrearHorario = ({ onClose }) => {
           <button
             type="button"
             className='p-4 w-1/2 text-black rounded-b-md active:bg-gray-200 transition-all'
-            onClick={handleCrearHorario}
+            onClick={handleSubmit}
           >Listo</button>
 
           <div className='border-l h-9 border-slate-300'></div>

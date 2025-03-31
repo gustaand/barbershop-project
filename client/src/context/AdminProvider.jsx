@@ -15,6 +15,7 @@ export const AdminProvider = ({ children }) => {
   const [proximaCita, setProximaCita] = useState({})
   const [citaParaActualizar, setCitaParaActualizar] = useState({})
   const [horarios, setHorarios] = useState([])
+  const [horarioParaActualizar, setHorarioParaActualizar] = useState({})
 
   const location = useLocation()
   const token = Cookies.get('token')
@@ -204,6 +205,7 @@ export const AdminProvider = ({ children }) => {
     }
   };
 
+
   return (
     <AdminContext.Provider
       value={{
@@ -220,7 +222,9 @@ export const AdminProvider = ({ children }) => {
         crearCita,
         crearHorario,
         horarios,
-        obtenerHorarios
+        obtenerHorarios,
+        horarioParaActualizar,
+        setHorarioParaActualizar,
       }}
     >
       {children}
