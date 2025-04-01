@@ -13,8 +13,23 @@ const app = express();
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(cookieParser());
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://192.168.1.143:5173',
+  'https://barbershop-frontend.pages.dev'
+];
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://192.168.1.143:5173', 'https://barbershop-frontend.pages.dev/'],
+  origin: function (origin, callback) {
+    // Permite solicitudes sin origen (como Postman, apps móviles) o si el origen está en la lista
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.error(`CORS Denegado para origen: ${origin}`);
+      callback(new Error('No permitido por CORS'));
+    }
+  },
   credentials: true
 }));
 
