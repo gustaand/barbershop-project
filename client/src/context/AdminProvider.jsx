@@ -86,7 +86,7 @@ export const AdminProvider = ({ children }) => {
     }
   }, [token, location.pathname]);
 
-  // 🔹 Actualizar Próxima Cita cada 10 minutos (Si hay citas hoy)
+  // Actualizar Próxima Cita cada 10 minutos (Si hay citas hoy)
   useEffect(() => {
     if (location.pathname === "/admin" && token) {
       mostrarProximaCita();
@@ -205,6 +205,19 @@ export const AdminProvider = ({ children }) => {
     }
   };
 
+  // ACTUALIZAR HORARIO
+  const actualizarHorario = async (horario) => {
+
+    console.log(horario)
+    try {
+      const { data } = await clienteAxios.put(`/horarios/${horario._id}`, horario);
+
+      obtenerHorarios();
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <AdminContext.Provider
@@ -225,6 +238,7 @@ export const AdminProvider = ({ children }) => {
         obtenerHorarios,
         horarioParaActualizar,
         setHorarioParaActualizar,
+        actualizarHorario
       }}
     >
       {children}

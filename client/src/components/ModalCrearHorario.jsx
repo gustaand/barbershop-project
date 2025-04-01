@@ -5,6 +5,7 @@ const ModalCrearHorario = ({ onClose }) => {
 
   const horaActual = new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
   const [hora, setHora] = useState(horaActual)
+  const [fechasDesactivadas, setFechasDesactivadas] = useState([])
 
   const {
     crearHorario,
@@ -15,29 +16,41 @@ const ModalCrearHorario = ({ onClose }) => {
 
   useEffect(() => {
     if (horarioParaActualizar?._id) {
-      setHora(horarioParaActualizar)
+      setHora(horarioParaActualizar?.hora)
     }
   }, [horarioParaActualizar])
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
 
     try {
-      const dataHora = { hora }
-      await crearHorario(dataHora)
 
-      // Limpiar y cerrar
-      setHora(horaActual)
+      const dataHora = { hora, fecha: fechasDesactivadas }
+      if (horarioParaActualizar?._id) {
+        await actualizarHorario({ id: horarioParaActualizar._id, ...dataHora });
+        setHora(horaActual)
+        setHorarioParaActualizar({})
+      } else {
+        await crearHorario(dataHora)
+        setHora(horaActual)
+      }
+
       onClose()
     } catch (error) {
       console.log(error)
     }
   }
 
+  const handleCloseModal = () => {
+    onClose()
+    setHorarioParaActualizar({})
+  }
+
   return (
     <div className='fixed flex justify-center items-center inset-0 z-40'>
       <div
         className="absolute inset-0 bg-black opacity-50"
-        onClick={onClose}
+        onClick={handleCloseModal}
       ></div>
 
       <form
@@ -62,14 +75,14 @@ const ModalCrearHorario = ({ onClose }) => {
             type="button"
             className='p-4 w-1/2 text-black rounded-b-md active:bg-gray-200 transition-all'
             onClick={handleSubmit}
-          >Listo</button>
+          >{horarioParaActualizar?._id ? 'Actualizar' : 'Crear'}</button>
 
           <div className='border-l h-9 border-slate-300'></div>
 
           <button
             type="button"
             className='p-4 w-1/2 text-black rounded-b-md active:bg-gray-200 transition-all'
-            onClick={onClose}
+            onClick={handleCloseModal}
           >Cancelar</button>
         </div>
       </form>

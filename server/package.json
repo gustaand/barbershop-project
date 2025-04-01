@@ -5,7 +5,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start": "NODE_ENV=production node index.js",
+    "build": "echo \"No build step required\""
   },
   "author": "GUSTAVO ANDREW MARQUES",
   "license": "ISC",

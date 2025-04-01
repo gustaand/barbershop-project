@@ -3,10 +3,13 @@ import Separator from "./Separator"
 import Switch from "./Switch";
 import useAdmin from "../hooks/useAdmin";
 import clienteAxios from "../config/clienteAxios";
+import ModalCrearHorario from "./ModalCrearHorario";
 
 const Horario = ({ horario }) => {
 
-  const [horarioActivo, setHorarioActivo] = useState(horario.activo)
+  const [horarioActivo, setHorarioActivo] = useState(horario.activo);
+  const [openModalHorario, setOpenModalHorario] = useState(false)
+  const { setHorarioParaActualizar } = useAdmin();
 
   //! TERMINAR DESPUÉS
   const handleActivarHorario = async () => {
@@ -21,6 +24,10 @@ const Horario = ({ horario }) => {
     }
   }
 
+  const handleOpenCloseModalHorario = () => {
+    setOpenModalHorario(!openModalHorario);
+  }
+
   return (
     <div
       className="flex flex-col justify-center items-center p-2 bg-white rounded-md m-2 shadow-md box-border"
@@ -28,7 +35,10 @@ const Horario = ({ horario }) => {
       <div
         className="font-semibold text-2xl text-neutral-700 w-full text-center
         active:text-blue-700 active:scale-110 transition-all ease-linear"
-        onClick={() => setHorarioID(horario._id)}
+        onClick={() => {
+          handleOpenCloseModalHorario()
+          setHorarioParaActualizar(horario);
+        }}
       >{horario.hora}</div>
 
       <Separator className={`py-1`} />
@@ -40,6 +50,10 @@ const Horario = ({ horario }) => {
           check={horarioActivo ? true : false}
         />
       </div>
+
+      {openModalHorario &&
+        <ModalCrearHorario onClose={handleOpenCloseModalHorario} />
+      }
     </div>
   )
 }
