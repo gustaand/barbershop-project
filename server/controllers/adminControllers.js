@@ -19,7 +19,14 @@ export const register = async (req, res) => {
     const adminSaved = await admin.save();
     const token = await createToken({ id: adminSaved._id });
 
-    res.cookie('token', token);
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      path: '/',
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    });
+
     res.json(adminSaved);
   } catch (error) {
     console.log(error);
@@ -40,7 +47,14 @@ export const login = async (req, res) => {
 
     const token = await createToken({ id: admin._id });
 
-    res.cookie('token', token);
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      path: '/',
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    });
+
     res.json({
       id: admin._id,
       nombre: admin.nombre,

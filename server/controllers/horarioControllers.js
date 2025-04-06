@@ -24,6 +24,9 @@ export const crearHorarios = async (req, res) => {
 
     const nuevoHorario = new Horario({ hora });
     await nuevoHorario.save();
+
+    req.io.emit("actualizar-horarios"); // Actualizar Horarios con socket.io
+
     res.status(201).json(nuevoHorario);
   } catch (error) {
     console.log(error);
@@ -37,6 +40,8 @@ export const actualizarHorario = async (req, res) => {
 
     if (!horario) return res.status(404).json({ msg: "Horario no encontrado." });
 
+    req.io.emit("actualizar-horarios"); // Actualizar Horarios con socket.io
+
     res.status(200).json(horario);
   } catch (error) {
     console.log(error);
@@ -49,6 +54,8 @@ export const eliminarHorario = async (req, res) => {
     const horario = await Horario.findByIdAndDelete(req.params.id);
 
     if (!horario) return res.status(404).json({ msg: "Horario no encontrado." });
+
+    req.io.emit("actualizar-horarios"); // Actualizar Horarios con socket.io
 
     res.status(200).json({ msg: "Horario eliminado correctamente." });
   } catch (error) {

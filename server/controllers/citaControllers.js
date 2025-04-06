@@ -16,6 +16,10 @@ export const crearCita = async (req, res) => {
     const citaCreada = await nuevaCita.save();
     const citaConHorario = await Cita.findById(citaCreada._id).populate("hora", "hora");
 
+    // Emitir nueva cita y actualizar horarios al resto de clientes conectados
+    req.io.emit("nueva-cita", citaConHorario);
+    req.io.emit("actualizar-horarios");
+
     res.json(citaConHorario);
   } catch (error) {
     console.log(error);
@@ -46,6 +50,8 @@ export const eliminarCita = async (req, res) => {
 
     if (!cita) return res.status(404).json({ msg: "Cita no encontrada" });
 
+    req.io.emit("actualizar-horarios"); // Actualizar Horarios con socket.io
+
     return res.status(204).json({ msg: 'Cita eliminada' });
   } catch (error) {
     console.log(error);
@@ -58,6 +64,8 @@ export const actualizarCita = async (req, res) => {
     const cita = await Cita.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate("hora", "hora");
 
     if (!cita) return res.status(404).json({ msg: "Cita no encontrada." });
+
+    req.io.emit("actualizar-horarios"); // Actualizar Horarios con socket.io
 
     return res.status(200).json(cita);
   } catch (error) {

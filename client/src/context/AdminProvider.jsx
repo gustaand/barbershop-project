@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from "react";
+import socket from "../config/socket";
 import { useLocation } from "react-router-dom";
 import clienteAxios from "../config/clienteAxios";
 import Cookies from "js-cookie";
@@ -94,6 +95,70 @@ export const AdminProvider = ({ children }) => {
       return () => clearInterval(intervalo);
     }
   }, [citaHoy, location.pathname]);
+
+  // Escuchar nuevas citas desde el backend vía socket
+  useEffect(() => {
+    if (token) {
+      const handleNuevaCita = (nuevaCita) => {
+        console.log('Cita recibida por socket:', nuevaCita);
+
+        setCitaSemana(prev => [...prev, nuevaCita]);
+
+        if (nuevaCita.fecha === fechaCalendario) {
+          setCitaCalendario(prev => {
+            const actualizadas = [...prev, nuevaCita].sort((a, b) => {
+              const horaA = Number((a.hora?.hora || '').replace(':', ''));
+              const horaB = Number((b.hora?.hora || '').replace(':', ''));
+              return horaA - horaB;
+            });
+            return actualizadas;
+          });
+        }
+
+        const fechaHoyLocal = formatInTimeZone(new Date(), 'Europe/Madrid', 'yyyy-MM-dd');
+        if (nuevaCita.fecha === fechaHoyLocal) {
+          setCitaHoy(prev => {
+            const actualizadas = [...prev, nuevaCita].sort((a, b) => {
+              const horaA = Number((a.hora?.hora || '').replace(':', ''));
+              const horaB = Number((b.hora?.hora || '').replace(':', ''));
+              return horaA - horaB;
+            });
+            return actualizadas;
+          });
+        }
+      };
+
+      const handleActualizarHorarios = async () => {
+        await obtenerHorarios()
+      }
+
+      socket.on("nueva-cita", handleNuevaCita);
+      socket.on("actualizar-horarios", handleActualizarHorarios);
+
+      // Listener para errores de conexión (¡MUY útil para depurar!)
+      socket.on('connect_error', (err) => {
+        console.error(`SOCKET Connect Error: ${err.message}`, err);
+      });
+
+      // Listener para desconexiones
+      socket.on('disconnect', (reason) => {
+        console.warn(`SOCKET Desconectado: ${reason}`);
+      });
+
+      // Listener para reconexiones exitosas (opcional pero útil)
+      socket.on('connect', () => {
+        console.log('SOCKET Re-conectado:', socket.id);
+      });
+
+      return () => {
+        console.log('SOCKET: Eliminando listener para nueva-cita');
+        socket.off('nueva-cita', handleNuevaCita);
+        socket.off('connect_error');
+        socket.off('disconnect');
+        socket.off('connect');
+      };
+    }
+  }, [token, fechaCalendario]);
 
   // COMPLETAR / ELIMINAR CITA
   const completarCita = async (citaID, horaID, fecha) => {
@@ -194,8 +259,8 @@ export const AdminProvider = ({ children }) => {
         const newHorarios = [...prevHorarios, data];
 
         return newHorarios.sort((a, b) => {
-          const [horaA, minA] = a.hora?.hora.split(":").map(Number) || [0, 0];
-          const [horaB, minB] = b.hora?.hora.split(":").map(Number) || [0, 0];
+          const [horaA, minA] = a.hora?.split(":").map(Number) || [0, 0];
+          const [horaB, minB] = b.hora?.split(":").map(Number) || [0, 0];
 
           return horaA !== horaB ? horaA - horaB : minA - minB;
         });
@@ -210,7 +275,7 @@ export const AdminProvider = ({ children }) => {
 
     console.log(horario)
     try {
-      const { data } = await clienteAxios.put(`/horarios/${horario._id}`, horario);
+      await clienteAxios.put(`/horarios/${horario.id}`, horario);
 
       obtenerHorarios();
 
