@@ -14,7 +14,10 @@ const citaSchema = new mongoose.Schema({
   },
   telefono: {
     type: String,
-  }
+  },
+  servicio: {
+    type: String,
+  },
 }, {
   timestamps: true
 });

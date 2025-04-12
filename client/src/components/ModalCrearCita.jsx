@@ -26,6 +26,16 @@ const ModalCrearCita = ({ onClose }) => {
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
   const [nombreCliente, setNombreCliente] = useState('');
   const [telefono, setTelefono] = useState('');
+  const [servicio, setServicio] = useState('');
+
+  const servicios = [
+    "Corte Clásico",
+    "Arreglo de Barba",
+    "Afeitado Tradicional",
+    "Corte y Barba",
+    "Corte Infantil",
+    "Tratamientos Capilares",
+  ];
 
   useEffect(() => {
     if (citaParaActualizar?._id) {
@@ -34,6 +44,7 @@ const ModalCrearCita = ({ onClose }) => {
       setHoraObject(citaParaActualizar.hora || { hora: '' });
       setNombreCliente(citaParaActualizar.nombreCliente || '');
       setTelefono(citaParaActualizar.telefono || '');
+      setServicio(citaParaActualizar.servicio || '');
 
       // Guarda la hora anterior antes de modificarla
       setHoraAnteriorID(citaParaActualizar.hora?._id || '');
@@ -68,7 +79,7 @@ const ModalCrearCita = ({ onClose }) => {
     if (!horaObject.hora || !horaID) return;
 
     try {
-      const datosCita = { fecha, hora: horaObject, nombreCliente, telefono };
+      const datosCita = { fecha, hora: horaObject, nombreCliente, telefono, servicio };
 
       if (id) {
         await editarCita({ id, ...datosCita }, horaAnteriorID);
@@ -147,6 +158,21 @@ const ModalCrearCita = ({ onClose }) => {
             value={telefono}
             onChange={(e) => setTelefono(e.target.value)}
           />
+        </label>
+
+        <label className='flex w-full justify-between items-center gap-3 px-2'>
+          <p className='text-xl'>Servicio:</p>
+          <select
+            className='rounded bg-white w-7/12 p-2 text-center'
+            value={servicio}
+            onChange={(e) => setServicio(e.target.value)}
+          >
+            {servicios.map((servicio, index) => (
+              <option key={index} value={servicio}>
+                {servicio}
+              </option>
+            ))}
+          </select>
         </label>
 
         <div className='flex justify-between items-center w-full border-t border-slate-300 mt-3'>
