@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react"
+import { FaTrashAlt } from "react-icons/fa";
+import Modal from "./Modal";
 import useAdmin from "../hooks/useAdmin"
 
 const ModalCrearHorario = ({ onClose }) => {
@@ -6,12 +8,14 @@ const ModalCrearHorario = ({ onClose }) => {
   const horaActual = new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
   const [hora, setHora] = useState(horaActual)
   const [fechasDesactivadas, setFechasDesactivadas] = useState([])
+  const [showModal, setShowModal] = useState(false)
 
   const {
     crearHorario,
     horarioParaActualizar,
     setHorarioParaActualizar,
-    actualizarHorario
+    actualizarHorario,
+    eliminarHorario
   } = useAdmin()
 
   useEffect(() => {
@@ -54,11 +58,20 @@ const ModalCrearHorario = ({ onClose }) => {
       ></div>
 
       <form
-        className='flex flex-col box-border gap-2 items-center w-4/5 bg-slate-100 pt-5 rounded-md shadow-md z-10 px-2'
+        className='flex flex-col box-border gap-4 items-center w-4/5 bg-slate-100 rounded-md shadow-md z-10 px-2'
       >
-
-        <div className="flex flex-col w-full items-center justify-center pt-2 py-3 mb-3 border-b border-slate-300">
-          <h2 className="text-xl text-center">Crear Horario</h2>
+        <div className={`flex flex-col w-full items-center justify-center ${horarioParaActualizar?._id ? 'pb-3' : 'py-5'} mb-3 border-b border-slate-300`}>
+          {horarioParaActualizar?._id && (
+            <div
+              className="w-full flex text-start text-xl pt-2 select-none"
+              onClick={() => {
+                setShowModal(!showModal)
+              }}
+            >
+              <FaTrashAlt className="active:scale-110 transition-all ease-linear" />
+            </div>
+          )}
+          <h2 className="text-xl text-center select-none">Crear Horario</h2>
         </div>
 
         <label className="m-2 w-full items-center flex justify-center bg-white rounded-md">
@@ -86,6 +99,21 @@ const ModalCrearHorario = ({ onClose }) => {
           >Cancelar</button>
         </div>
       </form>
+
+      {showModal && (
+        <Modal
+          title="¿Eliminar horario?"
+          p="¿Estas seguro de eliminar el horario?"
+          btConfirmValue="Eliminar"
+          zIndex={"z-50"}
+          onClick={() => {
+            eliminarHorario(horarioParaActualizar._id)
+            setShowModal(false)
+          }}
+          onClose={() => setShowModal(false)}
+        />
+      )}
+
     </div>
   )
 }

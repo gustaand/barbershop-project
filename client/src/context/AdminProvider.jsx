@@ -284,6 +284,18 @@ export const AdminProvider = ({ children }) => {
     }
   };
 
+  // ELIMINAR HORARIO
+  const eliminarHorario = async (id) => {
+    try {
+      await clienteAxios.delete(`/horarios/${id}`);
+      setHorarios(prevHorarios => prevHorarios.filter(horario => horario._id !== id));
+      console.log("Horario eliminado:", id);
+      obtenerHorarios();
+    } catch (error) {
+      console.error("Error al eliminar horario:", error);
+    }
+  };
+
   return (
     <AdminContext.Provider
       value={{
@@ -303,7 +315,8 @@ export const AdminProvider = ({ children }) => {
         obtenerHorarios,
         horarioParaActualizar,
         setHorarioParaActualizar,
-        actualizarHorario
+        actualizarHorario,
+        eliminarHorario,
       }}
     >
       {children}

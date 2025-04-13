@@ -1,11 +1,11 @@
 
 //TODO: !!!USAR ESTE COMPONENTE EN EL PROYECTO DE COMPONENTES!!!
 
-const Modal = ({ title, p, btConfirmValue, onClick, onClose }) => {
+const Modal = ({ title, p, btConfirmValue, onClick, onClose, zIndex }) => {
 
   return (
     <div
-      className='fixed flex justify-center items-center inset-0'
+      className={`fixed flex justify-center items-center inset-0 ${zIndex}`}
     >
       <div
         className="absolute inset-0 bg-black opacity-50"
