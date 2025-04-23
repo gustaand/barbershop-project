@@ -71,7 +71,7 @@ const ModalCrearHorario = ({ onClose }) => {
               <FaTrashAlt className="active:scale-110 transition-all ease-linear" />
             </div>
           )}
-          <h2 className="text-xl text-center select-none">Crear Horario</h2>
+          <h2 className="text-xl text-center select-none">{horarioParaActualizar?._id ? 'Actualizar Horario' : 'Crear Horario'}</h2>
         </div>
 
         <label className="m-2 w-full items-center flex justify-center bg-white rounded-md">

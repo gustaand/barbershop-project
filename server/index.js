@@ -29,7 +29,7 @@ const allowedOrigins = [
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
-    credentials: true
+    // credentials: true
   }
 });
 
