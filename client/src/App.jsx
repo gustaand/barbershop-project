@@ -1,40 +1,38 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './context/AuthProvider'
-import { AdminProvider } from './context/AdminProvider'
-import LoginAdmin from './pages/LoginAdmin'
-import PublicLayout from './layouts/PublicLayout'
-import AdminLayout from './layouts/AdminLayout'
-import Home from './pages/Home'
-import Citas from './pages/Citas'
-import Horarios from './pages/Horarios'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthProvider';
+import { AdminProvider } from './context/AdminProvider';
+import { ThemeProvider } from './context/ThemeProvider';
+import LoginAdmin from './pages/LoginAdmin';
+import AdminLayout from './layouts/AdminLayout';
+import Home from './pages/Home';
+import Citas from './pages/Citas';
+import Horarios from './pages/Horarios';
 
 function App() {
-
   return (
     <BrowserRouter>
       <AuthProvider>
         <AdminProvider>
-          <Routes>
-            {/* AREA PUBLICA */}
-            <Route path="/" element={<PublicLayout />} >     {/* PublicLayout */}
-              <Route index element={<></>} />     {/* LandingPage */}
-              <Route path='reservar' element={<></>} />     {/* ReservationPage */}
-            </Route>
+          <ThemeProvider>
+            <Routes>
+              {/* Redirige la raíz '/' a '/login-admin' */}
+              <Route path='/' element={<Navigate to="/login-admin" replace />} />
 
-            {/* AREA PRIVADA */}
-            <Route path='login-admin' element={<LoginAdmin />} />    {/* LoginAdmin */}
-            <Route path='/admin' element={<AdminLayout />} >      {/* AdminLayout */}
-              <Route index element={<Home />} />     {/* Home */}
-              <Route path='citas' element={<Citas />} />       {/* Citas */}
-              <Route path='citas/:id' element={<></>} />       {/* Cita */}
-              <Route path='horarios' element={<Horarios />} />     {/* Horarios */}
-              <Route path='horarios/:id' element={<></>} />     {/* Horario */}
-            </Route>
-          </Routes>
+              <Route path='/login-admin' element={<LoginAdmin />} />
+
+              <Route path='/admin' element={<AdminLayout />}>
+                <Route index element={<Home />} />
+                <Route path='citas' element={<Citas />} />
+                <Route path='citas/:id' element={<></>} />
+                <Route path='horarios' element={<Horarios />} />
+                <Route path='horarios/:id' element={<></>} />
+              </Route>
+            </Routes>
+          </ThemeProvider>
         </AdminProvider>
       </AuthProvider>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

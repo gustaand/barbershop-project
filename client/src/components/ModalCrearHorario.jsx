@@ -49,7 +49,6 @@ const ModalCrearHorario = ({ onClose }) => {
     onClose()
     setHorarioParaActualizar({})
   }
-
   return (
     <div className='fixed flex justify-center items-center inset-0 z-40'>
       <div
@@ -58,12 +57,12 @@ const ModalCrearHorario = ({ onClose }) => {
       ></div>
 
       <form
-        className='flex flex-col box-border gap-4 items-center w-4/5 bg-slate-100 rounded-md shadow-md z-10 px-2'
+        className='flex flex-col box-border gap-4 items-center w-4/5 bg-slate-100 dark:bg-zinc-800 rounded-md shadow-md z-10 px-2'
       >
-        <div className={`flex flex-col w-full items-center justify-center ${horarioParaActualizar?._id ? 'pb-3' : 'py-5'} mb-3 border-b border-slate-300`}>
+        <div className={`flex flex-col w-full items-center justify-center ${horarioParaActualizar?._id ? 'pb-3' : 'py-5'} mb-3 border-b border-slate-300 dark:border-zinc-600`}>
           {horarioParaActualizar?._id && (
             <div
-              className="w-full flex text-start text-xl pt-2 select-none"
+              className="w-full flex text-start text-xl pt-2 select-none text-black dark:text-slate-100"
               onClick={() => {
                 setShowModal(!showModal)
               }}
@@ -71,39 +70,45 @@ const ModalCrearHorario = ({ onClose }) => {
               <FaTrashAlt className="active:scale-110 transition-all ease-linear" />
             </div>
           )}
-          <h2 className="text-xl text-center select-none">{horarioParaActualizar?._id ? 'Actualizar Horario' : 'Crear Horario'}</h2>
+          <h2 className="text-xl text-center select-none text-black dark:text-slate-100">
+            {horarioParaActualizar?._id ? 'Actualizar horario' : 'Crear horario'}
+          </h2>
         </div>
 
-        <label className="m-2 w-full items-center flex justify-center bg-white rounded-md">
+        <label className="m-2 w-full items-center flex justify-center bg-white dark:bg-zinc-700 rounded-md">
           <input
             type="time"
             value={hora}
-            className="text-4xl w-full p-2 rounded-md flex bg-white items-center justify-center"
+            className="text-4xl w-full p-2 rounded-md flex bg-white dark:bg-zinc-700 text-black dark:text-slate-100 items-center justify-center"
             onChange={e => setHora(e.target.value)}
           />
         </label>
 
-        <div className='flex justify-between items-center w-full border-t border-slate-300 mt-3'>
+        <div className='flex justify-between items-center w-full border-t border-slate-300 dark:border-zinc-600 mt-3'>
           <button
             type="button"
-            className='p-4 w-1/2 text-black rounded-b-md active:bg-gray-200 transition-all'
+            className='p-4 w-1/2 text-black dark:text-slate-100 rounded-b-md active:bg-gray-200 dark:active:bg-zinc-700 transition-all'
             onClick={handleSubmit}
-          >{horarioParaActualizar?._id ? 'Actualizar' : 'Crear'}</button>
+          >
+            {horarioParaActualizar?._id ? 'Actualizar' : 'Crear'}
+          </button>
 
-          <div className='border-l h-9 border-slate-300'></div>
+          <div className='border-l h-9 border-slate-300 dark:border-zinc-600'></div>
 
           <button
             type="button"
-            className='p-4 w-1/2 text-black rounded-b-md active:bg-gray-200 transition-all'
+            className='p-4 w-1/2 text-black dark:text-slate-100 rounded-b-md active:bg-gray-200 dark:active:bg-zinc-700 transition-all'
             onClick={handleCloseModal}
-          >Cancelar</button>
+          >
+            Cancelar
+          </button>
         </div>
       </form>
 
       {showModal && (
         <Modal
           title="¿Eliminar horario?"
-          p="¿Estas seguro de eliminar el horario?"
+          p="¿Estás seguro de que quieres eliminar el horario?"
           btConfirmValue="Eliminar"
           zIndex={"z-50"}
           onClick={() => {
@@ -113,9 +118,8 @@ const ModalCrearHorario = ({ onClose }) => {
           onClose={() => setShowModal(false)}
         />
       )}
-
     </div>
-  )
+  );
 }
 
 export default ModalCrearHorario

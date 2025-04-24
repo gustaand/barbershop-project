@@ -62,7 +62,7 @@ const AdminSemana = ({ fecha }) => {
             cita={cita}
           />
         )) : (
-          <div className="text-center mt-10 text-xl font-medium text-slate-300">
+          <div className="text-center mt-10 text-xl font-medium text-slate-300 dark:text-slate-700">
             <p>No hay citas para el dia: </p>
             <p>{fecha.split("-").reverse().join("-")}</p>
           </div>

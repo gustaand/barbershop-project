@@ -1,22 +1,20 @@
 // VERSIÓN CON EL DOMINGO EN EL CALENDÁRIO
 
 const createDaysOfWeek = (day) => {
-  // Obtener la fecha actual
-  const diaActual = new Date(day);
+  const inputDate = new Date(day);
+  inputDate.setHours(0, 0, 0, 0); // Limpiar horas
 
-  // Obtener el día de la semana actual (0 para Domingo, 1 para Lunes, ..., 6 para Sábado)
-  const diaActualDeLaSemana = diaActual.getDay();
+  const dayOfWeek = inputDate.getDay(); // 0 = domingo, ..., 6 = sábado
 
-  // Calcular la fecha del primer día de la semana (Domingo)
-  const primerDiaDeLaSemana = new Date(diaActual);
-  primerDiaDeLaSemana.setDate(diaActual.getDate() - diaActualDeLaSemana);
+  const sunday = new Date(inputDate);
+  sunday.setDate(inputDate.getDate() - dayOfWeek); // Retroceder al domingo anterior o igual
 
-  // Generar los días de la semana con sus fechas
-  const daysOfWeek = [...Array(7)].map((_, index) => {
-    const date = new Date(primerDiaDeLaSemana);
-    date.setDate(primerDiaDeLaSemana.getDate() + index);
-    return date;
+  const daysOfWeek = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(sunday);
+    d.setDate(sunday.getDate() + i);
+    return d;
   });
+
   return daysOfWeek;
 };
 

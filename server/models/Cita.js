@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const citaSchema = new mongoose.Schema({
   fecha: {
     type: String,
-    require: true
+    required: true
   },
   hora: {
     type: mongoose.Schema.Types.ObjectId,
@@ -21,6 +21,9 @@ const citaSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// Índice TTL: borra la cita 30 días después de su creación
+citaSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 30 });
 
 const Cita = mongoose.model("Cita", citaSchema);
 

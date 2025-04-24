@@ -30,18 +30,20 @@ const Horario = ({ horario }) => {
 
   return (
     <div
-      className="flex flex-col justify-center items-center p-2 bg-white rounded-md m-2 shadow-md box-border"
+      className="flex flex-col justify-center items-center p-2 bg-white dark:bg-zinc-800 rounded-md m-2 shadow-md box-border"
     >
       <div
-        className="font-semibold text-2xl text-neutral-700 w-full text-center
-        active:text-blue-700 active:scale-110 transition-all ease-linear"
+        className="font-semibold text-2xl text-neutral-700 dark:text-slate-100 w-full text-center
+        active:text-blue-700 dark:active:text-indigo-400 active:scale-110 transition-all ease-linear"
         onClick={() => {
-          handleOpenCloseModalHorario()
+          handleOpenCloseModalHorario();
           setHorarioParaActualizar(horario);
         }}
-      >{horario.hora}</div>
+      >
+        {horario.hora}
+      </div>
 
-      <Separator className={`py-1`} />
+      <Separator className="py-1" />
 
       <div className="flex justify-between gap-2 pt-2">
         <Switch
@@ -51,11 +53,12 @@ const Horario = ({ horario }) => {
         />
       </div>
 
-      {openModalHorario &&
+      {openModalHorario && (
         <ModalCrearHorario onClose={handleOpenCloseModalHorario} />
-      }
+      )}
     </div>
-  )
+  );
+
 }
 
 export default Horario

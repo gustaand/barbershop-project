@@ -47,7 +47,7 @@ const AdminDias = () => {
             cita={cita}
           />
         )) : (
-          <div className="text-center mt-10 text-xl font-medium text-slate-300">No hay citas hoy</div>
+          <div className="text-center mt-10 text-xl font-medium text-slate-300 dark:text-slate-700">No hay citas hoy</div>
         )}
 
       {showModal &&

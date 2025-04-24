@@ -13,10 +13,10 @@ const AdminLayout = () => {
   }
 
   return (
-    <div className="bg-slate-100">
+    <div className="bg-slate-100 dark:bg-zinc-900">
       {auth.id ? (
         <div className="flex flex-col min-h-screen">
-          <main className="w-full max-h-screen overflow-auto">
+          <main className="w-full max-h-screen overflow-auto dark:text-white">
             <Outlet />
           </main>
           <AdminNavbar />
@@ -29,3 +29,5 @@ const AdminLayout = () => {
 }
 
 export default AdminLayout
+
+// dark:bg-zinc-900

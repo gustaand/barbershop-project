@@ -21,7 +21,9 @@ const server = http.createServer(app);
 // Configuración de CORS
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:4173',
   'http://192.168.1.143:5173',
+  'http://192.168.1.143:4173',
   'https://barbershop-frontend.pages.dev'
 ];
 

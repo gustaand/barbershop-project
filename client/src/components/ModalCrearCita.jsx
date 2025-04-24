@@ -100,26 +100,26 @@ const ModalCrearCita = ({ onClose }) => {
       <div className='absolute inset-0 bg-black opacity-50' onClick={onClose}></div>
 
       <form
-        className='flex flex-col gap-2 items-center w-4/5 bg-slate-100 pt-5 rounded-md shadow-md z-10 px-2'
+        className='flex flex-col gap-2 items-center w-4/5 bg-slate-100 dark:bg-zinc-800 pt-5 rounded-md shadow-md z-10 px-2'
         onSubmit={handleSubmit}
       >
-        <h2 className='text-xl text-center mb-3 border-b border-slate-300 w-full pb-2'>
+        <h2 className='text-xl text-center mb-3 border-b border-slate-300 dark:border-zinc-600 w-full pb-2 dark:text-white'>
           {id ? 'Actualizar Cita' : 'Crear Cita'}
         </h2>
 
         <label className='flex w-full justify-between items-center gap-3 px-2' onClick={() => setShowCalendario(true)}>
-          <p className='text-xl'>Fecha:</p>
-          <div className='flex items-center justify-between rounded bg-white w-7/12 p-2'>
+          <p className='text-xl dark:text-white'>Fecha:</p>
+          <div className='flex items-center justify-between rounded bg-white dark:bg-zinc-700 dark:text-white w-7/12 p-2'>
             <p className='w-5/6 text-center'>{fecha.split('-').reverse().join('-')}</p>
             <FaRegCalendar className='cursor-pointer w-1/6' />
           </div>
         </label>
 
         <label className='flex w-full justify-between items-center gap-3 px-2'>
-          <p className='text-xl'>Hora:</p>
+          <p className='text-xl dark:text-white'>Hora:</p>
           <select
             value={horaObject.hora}
-            className='rounded bg-white w-7/12 p-2 text-center'
+            className='rounded bg-white dark:bg-zinc-700 dark:text-white w-7/12 p-2 text-center'
             onChange={(e) => {
               const selectedHora = horariosDisponibles.find(
                 (horario) => horario.hora === e.target.value
@@ -141,9 +141,9 @@ const ModalCrearCita = ({ onClose }) => {
         </label>
 
         <label className='flex w-full justify-between items-center gap-3 px-2'>
-          <p className='text-xl'>Cliente:</p>
+          <p className='text-xl dark:text-white'>Cliente:</p>
           <input
-            className='p-2 rounded w-7/12 text-center'
+            className='p-2 rounded w-7/12 text-center dark:bg-zinc-700 dark:text-white'
             type='text'
             value={nombreCliente}
             onChange={(e) => setNombreCliente(e.target.value)}
@@ -151,9 +151,9 @@ const ModalCrearCita = ({ onClose }) => {
         </label>
 
         <label className='flex w-full justify-between items-center gap-3 px-2'>
-          <p className='text-xl'>Teléfono:</p>
+          <p className='text-xl dark:text-white'>Teléfono:</p>
           <input
-            className='p-2 rounded w-7/12 text-center'
+            className='p-2 rounded w-7/12 text-center dark:bg-zinc-700 dark:text-white'
             type='text'
             value={telefono}
             onChange={(e) => setTelefono(e.target.value)}
@@ -161,9 +161,9 @@ const ModalCrearCita = ({ onClose }) => {
         </label>
 
         <label className='flex w-full justify-between items-center gap-3 px-2'>
-          <p className='text-xl'>Servicio:</p>
+          <p className='text-xl dark:text-white'>Servicio:</p>
           <select
-            className='rounded bg-white w-7/12 p-2 text-center'
+            className='rounded bg-white dark:bg-zinc-700 dark:text-white w-7/12 p-2 text-center'
             value={servicio}
             onChange={(e) => setServicio(e.target.value)}
           >
@@ -175,12 +175,12 @@ const ModalCrearCita = ({ onClose }) => {
           </select>
         </label>
 
-        <div className='flex justify-between items-center w-full border-t border-slate-300 mt-3'>
-          <button type='submit' className='p-4 w-1/2 text-black active:bg-gray-200'>
+        <div className='flex justify-between items-center w-full border-t border-slate-300 dark:border-zinc-600 mt-3'>
+          <button type='submit' className='p-4 w-1/2 text-black dark:text-white active:bg-gray-200 dark:active:bg-zinc-700'>
             {id ? 'Actualizar' : 'Crear Cita'}
           </button>
-          <div className='border-l h-9 border-slate-300'></div>
-          <button type='button' className='p-4 w-1/2 text-black active:bg-gray-200' onClick={onClose}>
+          <div className='border-l h-9 border-slate-300 dark:border-zinc-600'></div>
+          <button type='button' className='p-4 w-1/2 text-black dark:text-white active:bg-gray-200 dark:active:bg-zinc-700' onClick={onClose}>
             Cancelar
           </button>
         </div>
@@ -189,18 +189,24 @@ const ModalCrearCita = ({ onClose }) => {
       {showCalendario && (
         <div className='fixed flex-col justify-center flex w-full h-full rounded-md shadow-md z-10'>
           <div className='absolute inset-0' onClick={() => setShowCalendario(false)}></div>
-          <div className='bg-white z-10'>
+          <div className='bg-white dark:bg-zinc-800 z-10'>
             <div className='flex w-full justify-end px-2 py-4'>
-              <button className='active:scale-125 transition-transform px-4' onClick={() => setShowCalendario(false)}>
+              <button className='active:scale-125 transition-transform px-4 text-black dark:text-white' onClick={() => setShowCalendario(false)}>
                 <GrClose />
               </button>
             </div>
-            <ReactCalendar minDate={new Date()} className='border-none px-2 pb-5' view='month' onClickDay={handleDateCalendar} />
+            <ReactCalendar
+              minDate={new Date()}
+              className='border-none px-2 pb-5 dark:bg-zinc-800 dark:text-white'
+              view='month'
+              onClickDay={handleDateCalendar}
+            />
           </div>
         </div>
       )}
     </div>
-  );
+  )
+
 };
 
 export default ModalCrearCita;
